@@ -1,0 +1,46 @@
+
+
+<html>
+	<head>
+		<link rel="icon" href="favicon.ico" type="image/x-icon">
+		<link rel="shortcut icon" href="/media/favicon.ico" type="image/x-icon">
+		<title> entrar </title>
+		<link rel='stylesheet' href='/media/style.css'>
+	</head>
+	<body>
+		<div style='margin:1em'>
+
+		<div class='clear v1'>
+
+		<form name='form' method='post' action='.'> {% csrf_token %}
+			<div class='small'> usuario</div>
+			<div class='v03'>
+			<input class='cozy' type='text' name='login_username'>
+			<div class='v06'>
+			<div class='small'> contraseña </div>
+			<div class='v03'>
+			<input class='cozy' type='password' name='login_password'>
+			<div class='v06'>
+			<input class='cozy' type='submit' value='entrar' name='btnlogin'>
+
+			<div class='v1'></div>
+			<div style='padding-left:0.1em'> o </div>
+			<div class='v1'></div>
+
+			<div class='small'> usuario</div>
+			<div class='v03'>
+			<input class='cozy' type='text' name='register_username'>
+			<div class='v06'>
+			<div class='small'> contraseña </div>
+			<div class='v03'>
+			<input class='cozy' type='password' name='register_password'>
+			<div class='v06'>
+			<div class='small'> correo </div>
+			<div class='v03'>
+			<input class='cozy' type='text' name='email'>
+			<div class='v06'>
+			<input class='cozy' type='submit' value='registrarse' name='btnregister'>
+		</form>
+		</div>
+	</body>
+</html>

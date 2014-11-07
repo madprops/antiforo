@@ -1,0 +1,451 @@
+# -*- encoding: utf-8 -*-
+
+import os
+import re
+import random
+import codecs
+import json
+import Image
+import datetime
+from calendar import monthrange
+from django.core import serializers
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render_to_response
+from django.core.context_processors import csrf
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.models import User
+from server.models import *
+from server.magik import ultralize
+
+#root = '/home/yo/antiforo/'
+root = '/home/localghost/webapps/antiforo/antiforo/'
+
+def now():
+	return datetime.datetime.now()
+
+def profile(request):
+	return Profile.objects.get(user=request.user)
+
+def create_c(request):
+	c = {}
+	c.update(csrf(request))
+	if request.user.is_authenticated():
+		p = profile(request)
+		c['auth'] = request.user.id
+		c['username'] = request.user.username
+	else:
+		c['auth'] = 0
+		c['username'] = 'guest'
+	c['data'] = 0
+	c['data2'] = 0
+	c['data3'] = 0
+	c['data4'] = 0
+	c['data5'] = 0
+	c['data6'] = 0
+	c['data7'] = 0
+	return c
+
+def get_colors(c, username):
+	p = Profile.objects.get(user__username=username)
+	c['background_color'] = p.background_color
+	c['text_color'] = p.text_color
+	c['highlight_color'] = p.highlight_color
+	return c
+
+def log(s):
+	with open(root + 'log', 'a') as log:
+		log.write(str(s).encode('utf-8') + '\n\n')
+
+def to_json(s):
+	try:
+		s.count()
+		return serializers.serialize('json', s)
+	except:
+		return serializers.serialize('json', [s,])
+
+def clean_string(s):
+	s = re.sub(r'\s+', ' ', s)
+	s = re.sub(r'([^\s\w ]|_)+','', s)
+	return s.strip()
+
+def cleaner(raw_html):
+	cleanr =re.compile('<.*?>')
+	cleantext = re.sub(cleanr,'', raw_html)
+	return cleantext
+
+def wash_string(s):
+	s = re.sub(r'\s+', ' ', s)
+	return s.strip()
+
+def is_alpha(s):
+	if re.search('[^\w\d\s]', s):
+		return False
+	return True
+
+def str_bool(b):
+	if b:
+		return 'true'
+	return 'false'
+
+def render(c):
+	return render_to_response('main.html', c)
+
+def main(request):
+	c = create_c(request)
+	c['title'] = 'antiescena'
+	c['action'] = 'main'
+	c['data'] = get_threadlist(request, 0)
+	
+	return render(c)
+
+def get_forumlist(request):
+	forums = Forum.objects.all().order_by('order')
+	forumlist = []
+	for f in forums:
+		forum = []
+		forum.append(str(f.id))
+		forum.append(f.name.encode('utf-8'))
+		try:
+			last_visit = LastForumVisit.objects.get(user=request.user, forum=f)
+			try:
+				last_post = Post.objects.filter(thread__forum=f).order_by('-id')[0]
+				if last_post.date > last_visit.date:
+					activity = 1
+				else:
+					activity = 0
+			except:
+				activity = 0;
+		except:
+			activity = 1
+		forum.append(activity)
+		forumlist.append(forum)
+	return forumlist
+
+def enter(request):
+	auth_logout(request)
+	c = create_c(request)
+	if request.method == 'POST':
+		if 'btnlogin' in request.POST:
+			username = clean_string(request.POST['login_username']).lower()
+			password = request.POST['login_password']
+			user = authenticate(username=username, password=password)
+			if user is not None:
+				if user.is_active:
+					auth_login(request, user)
+					return HttpResponseRedirect('/')
+		else:
+			username = clean_string(request.POST['register_username']).lower()
+			password = request.POST['register_password']
+			email = request.POST['email']
+			if register_details_are_ok(username, password, email):
+				user = authenticate(username=username, password=password)
+				if user is not None:
+					if user.is_active:
+						auth_login(request, user)
+				user = User.objects.create_user(username, 'no@emailst.com', password)
+				p = Profile(user=user, last_post=now())
+				p.save()
+				os.system('cp ' + root + 'media/img/default ' + root + 'media/img/' + user.username)
+				user.backend='django.contrib.auth.backends.ModelBackend'
+				auth_login(request, user)
+				return HttpResponseRedirect('/')
+	return render_to_response('enter.html', c)
+
+def register_details_are_ok(username, password, email):
+	reserved = ['login', 'register', 'rand', 'new', 'hot', 'find', 'stats', 'settings', 'update', 'alert', 'update', 'comment']
+	if username in reserved:
+		return False
+	if len(username) < 1 or len(username) > 33:
+		return False
+	if len(password) < 1 or len(password) > 333:
+		return False
+	if len(email) < 1 or len(email) > 100:
+		return False
+	if not is_alpha(username):
+		return False
+	if '@' not in email:
+		return False
+	return True
+
+def forum(request):
+	c = create_c(request)
+	c['title'] = 'antiescena'
+	c['action'] = 'main'
+	c['data2'] = get_threadlist(request, 0)
+	return render(c)
+
+def get_threadlist(request, date):
+	if date != 0:
+		threads = Thread.objects.filter(last_post__lt=date).order_by('-last_post')[:30]
+	else:
+		threads = Thread.objects.order_by('-last_post')[:30]
+	threadlist = []
+	for t in threads:
+		thread = []
+		thread.append(str(t.id))
+		if t.type == 'normal':
+			thread.append(t.name.encode('utf-8'))
+		elif t.type == 'poll':
+			thread.append('encuesta: ' + t.name.encode('utf-8'))
+		try:
+			last_visit = LastThreadVisit.objects.get(user=request.user, thread=t)
+			last_post = Post.objects.filter(thread=t).order_by('-id')[0]
+			if last_post.date > last_visit.date:
+				activity = 1
+			else:
+				activity = 0
+		except:
+			activity = 1
+		thread.append(activity)
+		threadlist.append(thread)
+	return threadlist
+
+def new_thread(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/entrar')
+	if request.method == 'POST':
+		name = wash_string(request.POST['name'].strip())
+		content = wash_string(request.POST['content'].strip())
+		if thread_details_are_ok(request, name, content):
+			thread = Thread(name=name, user=request.user, date=now(), type='normal', last_post=now())
+			thread.save()
+			post = Post(thread=thread, user=request.user, content=content, date=now())
+			post.save()
+			p = profile(request)
+			p.last_post = now()
+			p.save()
+			return HttpResponseRedirect('/' + str(thread.id))
+	c = create_c(request)
+	c['title'] = 'nuevo tema'
+	c['action'] = 'new_thread'
+	return render(c)
+
+def thread_details_are_ok(request, name, content):
+	try:
+		Thread.objects.get(name=name)
+		return False
+	except:
+		pass
+	p = profile(request)
+	if now() - datetime.timedelta(seconds=10) < p.last_post: 
+		return False
+	if len(name) < 1 or len(name) > 100: 
+		return False
+	if len(content) < 1 or len(content) > 10000:
+		return False
+	return True
+
+def thread(request, id):
+	c = create_c(request)
+	thread = Thread.objects.get(id=id)
+	if request.user.is_authenticated():
+		try:
+			last_visit = LastThreadVisit.objects.get(user=request.user, thread=thread)
+			last_visit.date = now()
+			last_visit.save()
+		except:
+			last_visit = LastThreadVisit(user=request.user, thread=thread, date=now())
+			last_visit.save()	
+	c['action'] = 'thread'
+	if thread.type == 'normal':
+		c['data'] = [thread.name.encode('utf-8'),]
+	elif thread.type == 'poll':
+		c['data'] = ['encuesta: ' + thread.name.encode('utf-8'),]
+	c['title'] = c['data'][0]
+	c['data2'] = get_postlist(request, thread, 0)
+	c['data3'] = thread.id
+	if thread.type == 'poll':
+		c['data4'] = get_optionlist(thread)
+	else:
+		c['data4'] = 0
+	c['data5'] = [str('start'),]
+	try:
+		PollVote.objects.get(user=request.user, option__thread=thread)
+		c['data6'] = 1
+	except:
+		c['data6'] = 0
+	return render(c)
+
+def get_optionlist(thread):
+	optionlist = []
+	options = PollOption.objects.filter(thread=thread)
+	for o in options:
+		option = []
+		option.append(str(o.id))
+		option.append(o.name.encode('utf-8'))
+		optionlist.append(option)
+	return optionlist
+
+def thread_start(request, forum, name):
+	return HttpResponseRedirect('/' + forum + '/' + name)
+
+def get_postlist(request, thread, id):
+	posts = Post.objects.filter(thread=thread).order_by('id')
+	postlist = []
+	for p in posts:
+		post = []
+		post.append(str(p.id))
+		post.append(ultralize(p.content).encode('utf-8'))
+		post.append(str(p.user.username))
+		date = p.date.strftime("%d-%m-%Y %I:%M %p")
+		post.append(str(date))
+		if request.user.is_authenticated():
+			thumbs = Thumb.objects.filter(user=request.user, post=p)
+			if thumbs:
+				post.append(str_bool(True))
+			else:
+				post.append(str_bool(False))
+		else:
+			post.append(str_bool(False))
+		post.append(str(Thumb.objects.filter(post=p).count()))
+		postlist.append(post)
+	return postlist
+
+def post(request, id):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/entrar')
+	thread = Thread.objects.get(id=id)
+	if request.method == 'POST':
+		content = cleaner(request.POST['content'])
+		content = content.replace('[/cita]', ' [/cita] ')
+		content = content.replace('[cita]', ' [cita] ')
+		if post_details_are_ok(request, thread, content):
+			post = Post(user=request.user, date=now(), thread=thread, content=content)
+			post.save()
+			thread.last_post = now()
+			thread.save()
+			p = profile(request)
+			p.last_post = now()
+			p.save()
+			return HttpResponseRedirect('/' + str(thread.id) + '#final')
+	c = create_c(request)
+	respondlist = request.GET.getlist('respondlist')
+	s = ""
+	for r in respondlist:
+		p = Post.objects.get(id=r)
+		s = s + "[cita] "
+		s = s + p.user.username + ' dijo: '
+		s = s + p.content
+		s = s + " [/cita]"
+		s = s + "&#013;&#010;&#013;&#010;"
+	c['title'] = 'responder'
+	c['action'] = 'post'
+	c['data'] = [thread.name.encode('utf-8'),] 
+	c['data2'] = [s.encode('utf-8'),]
+	return render(c)
+
+def post_details_are_ok(request, thread, content):
+	try:
+		last_user_post = Post.objects.filter(thread=thread, user=request.user).order_by('-id')[0]
+		if last_user_post.content == content:
+			return False
+	except:
+		pass
+	p = profile(request)
+	if now() - datetime.timedelta(seconds=10) < p.last_post: 
+		return False
+	if len(content) < 1 or len(content) > 10000:
+		return False
+	return True
+
+def thumbs(request):
+	status = 'ok'
+	id = request.GET['id']
+	post = Post.objects.get(id=id)
+	if request.user.is_authenticated():
+		thumbs = Thumb.objects.filter(user=request.user, post=post)
+		if thumbs:
+			for f in thumbs:
+				f.delete()
+		else:
+			thumb = Thumb(user=request.user, post=post)
+			thumb.save()
+	num_thumbs = Thumb.objects.filter(post=post).count()
+	data = {'status':status, 'num_thumbs': num_thumbs}
+	return HttpResponse(json.dumps(data), mimetype="application/json")
+
+def new_poll(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/entrar')
+	if request.method == 'POST':
+		name = wash_string(request.POST['name'].replace('encuesta:', '').strip())
+		content = wash_string(request.POST['content'].strip())
+		options = []
+		for g in request.POST:
+			if 'option' in g and request.POST[g] != '':
+				options.append(g)
+		if thread_details_are_ok(request, name, content) and len(options) > 1:
+			thread = Thread(name=name, user=request.user, date=now(), type='poll', last_post=now())
+			thread.save()
+			post = Post(thread=thread, user=request.user, content=content, date=now())
+			post.save()
+			for o in options:
+				po = PollOption(thread=thread, name=request.POST[str(o)])
+				po.save()
+			return HttpResponseRedirect('/' + str(thread.id))
+	c = create_c(request)
+	c['title'] = 'nueva encuesta'
+	c['action'] = 'new_poll'
+	return render(c)
+
+def vote(request):
+	status = 'ok'
+	thread_id = request.POST['thread_id']
+	option_id = request.POST['option_id']
+	thread = Thread.objects.get(id=thread_id)
+	po = PollOption.objects.get(id=option_id)
+	pv = PollVote(option=po, user=request.user, date=now())
+	pv.save()
+	data = {'status':status}
+	return HttpResponse(json.dumps(data), mimetype="application/json")
+
+def update_poll_results(request):
+	status = 'ok'
+	thread_id = request.GET['thread_id']
+	thread = Thread.objects.get(id=thread_id)
+	options = PollOption.objects.filter(thread=thread)
+	results = []
+	for o in options:
+		result = []
+		result.append(str(o.id))
+		result.append(o.name.encode('utf-8'))
+		result.append(str(PollVote.objects.filter(option=o).count()))
+		results.append(result)
+	data = {'status':status, 'results':results}
+	return HttpResponse(json.dumps(data), mimetype="application/json")
+
+def options(request):
+	if not request.user.is_authenticated():
+		return HttpResponseRedirect('/entrar')
+	if request.method == 'POST':
+		avatar = request.FILES['avatar']
+		handle_uploaded_file(avatar, request)
+	c = create_c(request)
+	c['title'] = 'opciones'
+	c['action'] = 'options'
+	return render(c)
+
+def handle_uploaded_file(file, request):
+	with open(root + 'media/img/' + request.user.username , 'wb+') as destination:
+		for chunk in file.chunks():
+			destination.write(chunk)
+	try:
+		im=Image.open(root + 'media/img/' + request.user.username)
+	except:
+		os.system('cp ' + root + 'media/img/default ' + root + 'media/img/' + request.user.username)
+
+def load_more_threads(request):
+	status = 'ok'
+	last_thread_id = request.GET['last_thread_id']
+	thread = Thread.objects.get(id=last_thread_id)
+	threadlist = get_threadlist(request, thread.forum, thread.last_post)
+	data = {'status':status, 'threads':threadlist}
+	return HttpResponse(json.dumps(data), mimetype="application/json")
+
+def user(request, username):
+	c = create_c(request)
+	user = User.objects.get(username=username)
+	c['action'] = 'user'
+	c['title'] = user.username
+	c['data'] = [str(user.username),]
+	return render(c)

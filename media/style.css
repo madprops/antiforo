@@ -1,0 +1,677 @@
+@font-face
+{
+	font-family: liberation;
+	src: url(/media/liberation.ttf);
+}
+
+body
+{
+	color: #737373;
+	font-family: liberation;
+	height: 100% auto;
+	word-spacing: 0.1em;
+	letter-spacing: 0.24em;
+	background-color: #ffffff;
+	overflow-x: none;
+	overflow-y: none;
+	margin: 1em;
+}
+
+#main 
+{
+
+}
+
+#header
+{
+	padding-bottom: 0.7em;
+}
+
+.nobreak
+{
+	white-space: nowrap;
+	word-wrap: break-word;
+}
+
+#input_holder
+{
+	width: 100%;
+}
+
+#input
+{
+	width: 100%;
+}
+
+a:visited, a:hover, a:link
+{
+	text-decoration: none;
+	color: #737373;
+}
+
+a:username, a:hover, a:link
+{
+	word-wrap:break-word;
+	text-decoration: none;
+	color: #737373;
+}
+
+a.forumtitle:visited, a.forumtitle:hover, a.forumtitle:link
+{
+	color: #737373;
+	text-decoration: none;
+	display: block;
+	padding-bottom: 2em;
+	font-size: 1.0em;
+}
+
+a.threadtitle:visited, a.threadtitle:hover, a.threadtitle:link
+{
+	color: #737373;
+	text-decoration: none;
+	display: block;
+	padding-bottom: 2em;
+	font-size: 1.0em;
+}
+
+a.maintitle:visited, a.maintitle:hover, a.maintitle:link
+{
+	color: #737373;
+	text-decoration: none;
+	display: block;
+	font-size: 1.4em;
+}
+
+a.title:visited, a.title:hover, a.title:link
+{
+	color: #737373;
+	text-decoration: none;
+	display: block;
+	font-size: 1.4em;
+	padding-bottom:0.2em;
+}
+
+a.top:visited, a.top:hover, a.top:link
+{
+	color: #737373;
+	text-decoration: none;
+	font-size: 0.9em;
+	float: left;
+}
+
+#menu
+{
+	top: 25%;
+	left:25%;
+	height: 50%;
+	width: 50%;
+	position: fixed;
+	visibility: hidden;
+	background-color: white;
+}
+
+#menu_header
+{
+	margin: 0.5em;
+}
+
+.menu_tab
+{
+	font-size: 0.7em;
+	color:black;
+}
+
+#menu_item_holder
+{
+	margin: 0.5em;
+}
+
+#menu_items
+{
+	max-height: 100%;
+	max-width: 100%;
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+.menu_item
+{
+	padding-bottom: 0.3em;
+	font-size:0.9em;
+}
+
+.v001
+{
+	padding-top: 0.01em;
+	padding-bottom: 0.01em;
+}
+
+.v003
+{
+	padding-top: 0.03em;
+	padding-bottom: 0.03em;
+}
+
+.v006
+{
+	padding-top: 0.06em;
+	padding-bottom: 0.06em;
+}
+
+.v004
+{
+	padding-top: 0.04em;
+	padding-bottom: 0.04em;
+}
+
+.v005
+{
+	padding-top: 0.05em;
+	padding-bottom: 0.05em;
+}
+
+.v009
+{
+	padding-top: 0.09em;
+	padding-bottom: 0.09em;
+}
+.v01
+{
+	padding-top: 0.1em;
+	padding-bottom: 0.1em;
+}
+
+.v015
+{
+	padding-top: 0.15em;
+	padding-bottom: 0.15em;
+}
+
+.v02
+{
+	padding-top: 0.2em;
+	padding-bottom: 0.2em;
+}
+
+.v03
+{
+	padding-top: 0.3em;
+	padding-bottom: 0.3em;
+}
+
+.v04
+{
+	padding-top: 0.4em;
+	padding-bottom: 0.4em;
+}
+
+.v05
+{
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+.v06
+{
+	padding-top: 0.6em;
+	padding-bottom: 0.6em;
+}
+
+.v07
+{
+	padding-top: 0.7em;
+	padding-bottom: 0.7em;
+}
+
+.v08
+{
+	padding-top: 0.8em;
+	padding-bottom: 0.8em;
+}
+
+.v09
+{
+	padding-top: 0.9em;
+	padding-bottom: 0.9em;
+}
+
+.v1
+{
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+.v11
+{
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+.v12
+{
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+.v15
+{
+	padding-top: 1.5em;
+	padding-bottom: 1.5em;
+}
+
+.v2
+{
+	padding-top: 2em;
+	padding-bottom: 2em;
+}
+
+.small
+{
+	font-size:0.7em;
+}
+
+input[type='button']
+{
+	background-color: white;
+	outline: none;
+	border: 0.9px solid;
+	border-color: #CECECE;
+	font-family: serif;
+	color:#3E3E3E;
+	font-size: 0.7em;
+}
+
+input[type='submit']
+{
+	background-color: white;
+	outline: none;
+	border: 0.9px solid;
+	border-color: #CECECE;
+	font-family: serif;
+	color:#3E3E3E;
+	font-size: 0.7em;
+}
+
+input[type='text']
+{
+	outline: none;
+	border: 0.9px solid;
+	border-color: #CECECE;
+	font-family: serif;
+	color: #5c5c5c;
+	padding:0.3em;
+}
+
+input[type='password']
+{
+	outline: none;
+	border: 0.9px solid;
+	border-color: #CECECE;
+	font-family: serif;
+	color: #5c5c5c;
+}
+
+textarea
+{
+	resize:none;
+	font-family: serif;
+	color: #5c5c5c;
+	border-color: #CECECE;
+	outline: none;
+	padding: 0.3em;
+}
+
+.cozy
+{
+	padding: 0.3em;
+	font-size: 1em;
+	letter-spacing: 0.14em
+}
+
+.clear
+{
+	clear:both;
+}
+
+#overlay
+{
+	top: 0;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	visibility: hidden;
+	background-color: rgba(20,20,20,0.9);
+}
+
+.unselected
+{
+	color: #7B7B7B !important;
+}
+
+#portrait
+{
+	max-width: 100%;
+	min-width: 100%;
+}
+
+#portrait_image
+{
+	min-width: 100%;
+	max-width: 100%;
+}
+
+#portrait_uploader, #uploadform
+{
+	position: fixed;
+	top: -1000;
+}
+
+.image_container 
+{ 
+	width: 10em; 
+	height: 10em; 
+	overflow: hidden; 
+}
+
+.image_container img 
+{ 
+	width: 100%; 
+}
+
+.store_item
+{
+	float: left;
+	margin-right: 1.1em;
+}
+
+#store
+{
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+#store_items_holder
+{
+
+}
+
+#store_items
+{
+	max-height: 100%;
+}
+
+.item_description
+{
+	font-size: 0.7em;
+}
+
+.item_price
+{
+	font-size: 0.7em;
+}
+
+#lobby_content_holder
+{
+
+}
+
+#lobby_content
+{
+	max-height: 100%;
+}
+
+.small
+{
+	font-size: 0.7em;
+}
+
+.forumlist
+{
+	padding-top:2em;	
+}
+
+.title
+{
+	font-size: 1.0em;
+	float: left;
+}
+
+.postblock1
+{
+	float: left;
+	min-width: 5em;
+}
+
+.postblock2
+{
+	float: left;
+	padding-left: 2em;
+	width: 80%;
+	padding-top:0.27em;
+}
+
+.image_container
+{
+	width: 4em;
+	height: 4em;
+	overflow: hidden;
+}
+
+.image_container img 
+{
+	min-width: 100%;
+}
+
+.thread_top
+{
+	width: 80%;
+}
+
+.thumbs
+{
+	width: 0.6em;
+}
+
+.respond
+{
+	float: right;
+	font-size: 0.6em;
+	float: right;
+}
+
+.respond_selected
+{
+	float: right;
+	font-size: 0.6em;
+	float: right;
+	font-weight: bold;
+}
+
+.date
+{
+	font-size: 0.6em;
+	float:left;
+}
+
+.floater
+{
+	float: left;
+}
+
+.rfloater
+{
+	float: right;
+}
+
+.num_thumbs
+{
+	font-size: 0.6em;
+}
+
+.outer_quote
+{
+	padding-top:1em;
+	padding-bottom:1em;
+}
+
+.quote
+{
+	background-color: #DCEAFF;
+	padding: 0.4em;
+	font-size: 1em;
+	border: 0.9px #7D7D7D solid;
+}
+
+.main_title
+{
+	font-size: 1.4em;
+	padding-bottom:0.3em;
+}
+
+.option
+{
+	padding-bottom: 1em
+}
+
+.activity
+{
+	padding-top: 0.33em;
+	padding-right: 0.6em;
+	width:0.6em;
+	float: left;
+}
+
+.content
+{
+	word-wrap:break-word;
+}
+
+.options_image
+{
+	min-width: 10em;
+	max-width: 10em;
+}
+
+a.title:visited, a.title:hover, a.title:link
+{
+	color: #737373;
+	text-decoration: none;
+	font-size: 1.8em;
+}
+
+a.menu:visited, a.menu:hover, a.menu:link
+{
+	color: #737373;
+	text-decoration: none;
+	font-size: 0.8em;
+}
+
+a.post_title:visited, a.post_title:hover, a.post_title:link
+{
+	color: #737373;
+	text-decoration: none;
+	font-size: 1.4em;
+}
+
+.post_title
+{
+
+}
+
+.post_date
+{
+	font-size: 0.6em;
+}
+
+.post_content
+{
+
+}
+
+.floater
+{
+	float: left;
+}
+
+.clear
+{
+	clear:both;
+}
+
+.leftcol
+{
+	width: 15%;
+}
+
+.rightcol
+{
+	width: 80%;
+}
+
+.image_holder
+{
+	min-width: 100%;
+	overflow: hidden;
+}
+
+.full_image
+{
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.small_image
+{
+	max-width: 10em;
+	text-align: left;
+	padding-right: 1em;
+	padding-bottom: 0.2em;
+}
+
+
+
+.leftblock
+{
+	float: left;
+	width: 80%;
+}
+
+.rightblock
+{
+	float: left;
+	width: 15%;
+}
+
+.main
+{
+	width: 75%;
+	margin: 0 auto;
+}
+
+.comment_input
+{
+	width: 100%;
+}
+
+.comment_date
+{
+	font-size:0.6em;
+}
+
+.comment_content
+{
+
+}
+
+.title
+{
+	font-size: 1.8em;
+}
+
+.username
+{
+	word-wrap:break-word;
+}
+
+
+

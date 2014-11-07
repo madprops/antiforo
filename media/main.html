@@ -1,0 +1,252 @@
+<html>
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/media/favicon.ico" type="image/x-icon">
+<meta name="description" content="foro anti escena">
+<meta name="keywords" content="foro, costa rica, discusion">
+<title> {{title}} </title>
+<link rel='stylesheet' href='/media/style.css'>
+<script src='/media/jquery.js'></script>
+<script src='/media/color.js'></script>
+<script src='/media/handlebars.js'></script>
+<script src='/media/nicescroll.js'></script>
+<script src='/media/base.js'></script>
+<script>
+	$(function()
+	{
+		auth = {{auth|safe}};
+		username = '{{username}}';
+		action = '{{action}}';
+		csrf_token = '{{csrf_token}}';
+		init({{data|safe}},{{data2|safe}},{{data3|safe}},{{data4|safe}},{{data5|safe}},{{data6|safe}},{{data7|safe}})
+	})
+</script>
+</head>
+<body>
+
+{% verbatim %}
+
+<script id='template_main' type='text/x-handlebars-template'>
+	<div id='overlay'></div>
+	<div id='menu'></div>
+</script>
+
+<script id='template_threads_top' type='text/x-handlebars-template'>
+	<div id='forum_top'>
+		
+		<div class='clear'>
+		<a class='top' href='nuevo'> nuevo tema&nbsp;&nbsp;|&nbsp;&nbsp; </a>
+		{{# if auth}}
+			<a class='top' href='/opciones'> opciones</a>
+		{{else}}
+			<a href='/entrar' class='top'>entrar</a>
+		{{/if}}
+		<div class='clear v08'></div>
+	</div>
+	<div id='threadlist'></div>
+	<div id='bottom'></div>
+</script>
+
+<script id='template_threads' type='text/x-handlebars-template'>
+	{{#each threads}}
+	<div class='thread' id={{this.id}}>
+		{{#if activity}}
+			<img class='activity' src='/media/img/activity'>
+		{{else}}
+			<img class='activity' src='/media/img/noactivity'>
+		{{/if}}
+		<a class='threadtitle' href='{{this.id}}' class='threadtitle'> {{this.name}} </a>
+	</div>
+	{{/each}}
+</script>
+
+<script id='template_new_thread' type='text/x-handlebars-template'>
+	<a class='title' href='/'>nuevo tema</a>
+	<div class='clear'></div>
+	<div class='v1'>
+
+	<form name='form' action='.' method='post'> {% endverbatim %}{% csrf_token %}{% verbatim %}
+
+		<div class='small'>t&iacute;tulo</div>
+		<div class='v06'>
+		<input id='name' name='name' type='text'>
+
+		<div class='v1'>
+
+		<div class='small'>contenido</div>
+		<div class='v06'>
+		<textarea id='content' name='content' rows=15 cols=50></textarea>
+
+		<div class='v1'>
+
+		<input id='submit' type='submit' value='publicar'>
+
+	</form>
+</script>
+
+<script id='template_thread_top' type='text/x-handlebars-template'>
+	<div id='thread_top'>
+		<a href='../' class='title'> {{name}} </a> 
+		<div class='clear'></div>
+		<a href='/' class='top'>volver &nbsp;|&nbsp;&nbsp;</a> 
+		<a href='#' onclick='go_to_the_end();return false;' class='top'>ir al final &nbsp;|&nbsp;&nbsp;</a> 
+		<a href='#' onclick='goto_respond();return false;' class='top'>responder </a> 
+		<div class='clear'></div>
+		<div class='v06'></div>
+	</div>
+	<div id="poll"></div>
+	<div id='postlist'></div>
+	<a href='/' class='top'>volver &nbsp;|&nbsp;&nbsp;</a> 
+	<a href='#' onclick='go_up();return false;' class='top'>ir arriba &nbsp;|&nbsp;&nbsp;</a> 
+	<a href='#' onclick='goto_respond();return false;' class='top'>responder</a> 
+	<div class='v06'></div>
+	<div id='bottom'></div>
+	<a name='final'></a>
+</script>
+
+
+<script id='template_poll' type='text/x-handlebars-template'>
+	{{#each options}}
+		<div class='option'>
+			<input type='radio' name='poll' value='{{this.id}}'> {{this.name}}
+		</div>
+	{{/each}}
+	<input onclick='vote()' type='button' value='votar'> 
+	<div class='v05'></div>
+</script>
+
+<script id='template_posts' type='text/x-handlebars-template'>
+	{{#each posts}}
+	<div class='post' id={{this.id}}>
+		<div class='postblock1'>
+
+			<a  href='/usuario/{{this.user}}/' class='username'> {{this.user}} </a>
+			<div class='v03'></div>
+			<div class='image_container'>
+				<img src='/media/img/{{user}}'>
+			</div>
+		</div>
+		<div class='postblock2'> 
+
+			<div class='date'> 
+				{{this.date}}
+			</div>
+			<div class='rfloater'>
+				{{# if thumbed }}
+					<img onclick="thumbs(this)" class='thumbs floater' src='/media/img/thumbsup'> 
+				{{ else }}	
+					<img onclick="thumbs(this)" class='thumbs floater' src='/media/img/thumbs'> 
+				{{/if}}
+				<div id='num_thumbs_{{this.id}}' class='num_thumbs floater'>&nbsp;({{num_thumbs}})</div>
+				<a class='respond' href='#' onclick='add_to_responses(this);return false;'> &nbsp;responder </a>
+			</div>
+
+			<div class='v07'></div>
+			
+			<div class='content'> {{{this.content}}} </div>
+
+		</div>
+
+		<div class='clear v15'></div>
+
+	</div>
+	{{/each}}
+</script>
+
+<script id='template_post' type='text/x-handlebars-template'>
+	<a href='../' class='top'> respuesta a "{{name}}"</a>
+	<div class='v1'></div>
+	<form name='form' action='.' method='post'> {% endverbatim %}{% csrf_token %}{% verbatim %}
+		<textarea id='content' name='content' rows=15 cols=50></textarea>
+		<div class='v03'></div>
+		<input type='submit' value='responder'>
+	</form>
+</script>
+
+<script id='template_options' type='text/x-handlebars-template'>
+	<div id='options'>
+		<a href='/' class='title'>opciones</a>
+		<div class='clear v03'></div>
+		<div> retrato </div>
+		<div class='v03'></div>
+		<img class='options_image' src='/media/img/{{username}}?{{date}}'>
+		<div class='v04'></div> 
+		<form action='' method='post' name='form' enctype='multipart/form-data'> {% endverbatim %}{% csrf_token %}{% verbatim %}
+			<input id='avatar' name='avatar' type='file'> 
+		</form>
+		<div class='v06'></div>
+		<a href='/entrar'> cerrar sesi&oacute;n </a>
+		<div class='v06'></div>
+	</div>
+</script>
+
+<script id='template_results' type='text/x-handlebars-template'>
+	<div class='small'> resultados: </div>
+	<div class='v02'></div>
+	{{#each results}}
+		<div class='floater v02'> {{this.name}}:</div> 
+		<div class='floater v02'> &nbsp; {{this.votes}} </div>
+		<div class='clear'></div>
+	{{/each}}
+	<div class='v05'></div>
+</script>
+
+<script id='template_new_poll' type='text/x-handlebars-template'>
+	<a class='top' href='/{{forum}}'>nueva encuesta</a>
+	<div class='clear'></div>
+	<div class='v1'>
+
+	<form name='form' action='.' method='post'> {% endverbatim %}{% csrf_token %}{% verbatim %}
+
+		<div class='small'>t&iacute;tulo</div>
+		<div class='v06'>
+		<input id='name' name='name' type='text'>
+
+		<div class='v1'>
+
+		<div class='small'>contenido</div>
+		<div class='v06'>
+		<textarea id='content' name='content' rows=15 cols=50></textarea>
+
+		<div class='v1'>
+
+		<div class='small'> opciones </div>
+
+		<div class='v04'></div>
+
+		<div id='options'>
+			<input name='option1' type='text'>
+			
+			<div class='v06'></div>
+
+			<input name='option2' type='text'>
+		</div>
+
+		<div class='v06'></div>
+
+		<input type='submit' value='publicar'>
+
+		<input onclick='add_more_options();return false;' type='button' value='m&aacute;s opciones'>
+
+	</form>
+</script>
+
+<script id='template_user' type='text/x-handlebars-template'>
+	<a class='title' href='/{{forum}}'>{{ username }}</a>
+	{{# if owner }}
+		<a href='#'></a>
+		<a href='#'></a>
+	{{/if }}
+	<div class='clear'></div>
+	<div class='v1'>
+	<form name='form' action='.' method='post'> {% endverbatim %}{% csrf_token %}{% verbatim %}
+</script>
+
+
+
+{% endverbatim %}
+
+iii
+
+</body>
+</html>
